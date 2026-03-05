@@ -101,3 +101,7 @@ print("\nИтоговый test_df:")
 print(test_df.head())
 print("\nИнформация о test_df:")
 print(test_df.info())
+
+# Сохранение обработанные данные в CSV
+train_df.to_csv("train_processed.csv", index=False)
+test_df.to_csv("test_processed.csv", index=False)
