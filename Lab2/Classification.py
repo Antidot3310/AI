@@ -33,6 +33,6 @@ rf_clf.fit(X_train_clf, y_train_clf)
 y_pred_rf = rf_clf.predict(X_test_clf)
 
 print("RandomForest Classifier:")
-print("Accuracy:", accuracy_score(y_test_clf, y_pred_rf))
+print(f"Accuracy: {accuracy_score(y_test_clf, y_pred_rf):.3f}")
 print("Confusion Matrix:\n", confusion_matrix(y_test_clf, y_pred_rf))
 print("Classification Report:\n", classification_report(y_test_clf, y_pred_rf))

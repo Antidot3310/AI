@@ -22,8 +22,8 @@ lr.fit(X_train_reg, y_train_reg)
 y_pred_reg = lr.predict(X_test_reg)
 
 print("Linear Regression:")
-print(f"MSE: {mean_squared_error(y_test_reg, y_pred_reg):.3f}")
-print(f"MAE: {mean_absolute_error(y_test_reg, y_pred_reg):.3f}\n\n")
+print(f"MSE: {mean_squared_error(y_test_reg, y_pred_reg):.6f}")
+print(f"MAE: {mean_absolute_error(y_test_reg, y_pred_reg):.6f}\n\n")
 
 # Улучшение
 ridge = Ridge(alpha=1)
@@ -31,8 +31,8 @@ ridge.fit(X_train_reg, y_train_reg)
 y_pred_ridge = ridge.predict(X_test_reg)
 
 print("Ridge Regression:")
-print(f"MSE: {mean_squared_error(y_test_reg, y_pred_ridge):.3f}")
-print(f"MAE: {mean_absolute_error(y_test_reg, y_pred_ridge):.3f}")
+print(f"MSE: {mean_squared_error(y_test_reg, y_pred_ridge):.6f}")
+print(f"MAE: {mean_absolute_error(y_test_reg, y_pred_ridge):.6f}")
 
 
 rf_reg = RandomForestRegressor(n_estimators=100, random_state=42)
@@ -40,5 +40,5 @@ rf_reg.fit(X_train_reg, y_train_reg)
 y_pred_rf = rf_reg.predict(X_test_reg)
 
 print("RandomForest Regression:")
-print(f"MSE: {mean_squared_error(y_test_reg, y_pred_rf):.3f}")
-print(f"MAE: {mean_absolute_error(y_test_reg, y_pred_rf):.3f}")
+print(f"MSE: {mean_squared_error(y_test_reg, y_pred_rf):.6f}")
+print(f"MAE: {mean_absolute_error(y_test_reg, y_pred_rf):.6f}")

@@ -2,14 +2,51 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
+
+def fill_missing(train: pd.DataFrame, test: pd.DataFrame):
+    fill_values = {
+        "Age": train["Age"].median(),
+        "Embarked": train["Embarked"].mode()[0],
+        "Cabin": "U",
+    }
+    train.fillna(fill_values, inplace=True)
+    test.fillna(fill_values, inplace=True)
+    return train, test
+
+
+def normalize(train: pd.DataFrame, test: pd.DataFrame, columns):
+    scaler = MinMaxScaler()
+    train[columns] = scaler.fit_transform(train[columns])
+    test[columns] = scaler.transform(test[columns])
+    return train, test
+
+
+def one_encode(train: pd.DataFrame, test: pd.DataFrame, column):
+    dummies_train = pd.get_dummies(train[column], prefix=column, drop_first=True)
+    dummies_test = pd.get_dummies(test[column], prefix=column, drop_first=True)
+
+    # в test появятся все столбцы из train, недостающие заполнятся 0
+    dummies_test = dummies_test.reindex(columns=dummies_train.columns, fill_value=0)
+
+    train = pd.concat([train, dummies_train], axis=1).drop(column, axis=1)
+    test = pd.concat([test, dummies_test], axis=1).drop(column, axis=1)
+    return train, test
+
+
+def drop_columns(train: pd.DataFrame, test: pd.DataFrame, columns):
+    train.drop(columns=columns, inplace=True, errors="ignore")
+    test.drop(columns=columns, inplace=True, errors="ignore")
+    return train, test
+
+
 df = pd.read_csv("train.csv")
 
 # Первичный анализ
 print("Первые 5 строк:")
 print(df.head())
-print("\nИнформация о датасете:")
+print("\nИнформация:")
 print(df.info())
-print("\nСтатистика числовых признаков:")
+print("\nСтатистика:")
 print(df.describe())
 
 # Разделение на train / test
@@ -21,75 +58,27 @@ print("\nПропуски в train выборке:")
 print(missing_train[missing_train > 0])
 
 # Заполнение пропусков (используем только train)
-median_age = train_df["Age"].median()
-mode_embarked = train_df["Embarked"].mode()[0]
+fill_missing(train_df, test_df)
 
-train_df["Age"] = train_df["Age"].fillna(median_age)
-train_df["Embarked"] = train_df["Embarked"].fillna(mode_embarked)
-train_df["Cabin"] = train_df["Cabin"].fillna("U")  # временно
-
-# Применяем к test
-test_df["Age"] = test_df["Age"].fillna(median_age)
-test_df["Embarked"] = test_df["Embarked"].fillna(mode_embarked)
-test_df["Cabin"] = test_df["Cabin"].fillna("U")
-
-# Проверка, что пропусков нет
-print("\nПосле заполнения пропусков в train:")
-print(train_df.isnull().sum())
+# Проверка
+assert train_df.isnull().sum().sum() == 0
 
 #  Нормализация числовых признаков
 num_cols = ["Age", "Fare", "SibSp", "Parch"]
-scaler = MinMaxScaler()
-
-train_df[num_cols] = scaler.fit_transform(train_df[num_cols])
-test_df[num_cols] = scaler.transform(test_df[num_cols])
+normalize(train_df, test_df, num_cols)
 
 # Кодирование категориальных признаков
-
 # Sex
 train_df["Sex"] = train_df["Sex"].map({"male": 0, "female": 1})
 test_df["Sex"] = test_df["Sex"].map({"male": 0, "female": 1})
 
-# Embarked (OHE)
-embarked_dummies_train = pd.get_dummies(
-    train_df["Embarked"], prefix="Embarked", drop_first=True
-)
-train_df = pd.concat([train_df, embarked_dummies_train], axis=1)
-train_df.drop("Embarked", axis=1, inplace=True)
-
-# Для test то же самое
-embarked_dummies_test = pd.get_dummies(
-    test_df["Embarked"], prefix="Embarked", drop_first=True
-)
-test_df = pd.concat([test_df, embarked_dummies_test], axis=1)
-test_df.drop("Embarked", axis=1, inplace=True)
-
-# Добавляем в test отсутствующие столбцы
-for col in embarked_dummies_train.columns:
-    if col not in test_df.columns:
-        test_df[col] = 0
-
-# Pclass (аналогично)
-pclass_dummies_train = pd.get_dummies(
-    train_df["Pclass"], prefix="Pclass", drop_first=True
-)
-train_df = pd.concat([train_df, pclass_dummies_train], axis=1)
-train_df.drop("Pclass", axis=1, inplace=True)
-
-pclass_dummies_test = pd.get_dummies(
-    test_df["Pclass"], prefix="Pclass", drop_first=True
-)
-test_df = pd.concat([test_df, pclass_dummies_test], axis=1)
-test_df.drop("Pclass", axis=1, inplace=True)
-
-for col in pclass_dummies_train.columns:
-    if col not in test_df.columns:
-        test_df[col] = 0
+cols = {"Embarked", "Pclass"}
+for item in cols:
+    train_df, test_df = one_encode(train_df, test_df, item)
 
 # Удаление ненужных столбцов
 cols_to_drop = ["Name", "Ticket", "Cabin", "PassengerId"]
-train_df.drop(cols_to_drop, axis=1, inplace=True, errors="ignore")
-test_df.drop(cols_to_drop, axis=1, inplace=True, errors="ignore")
+drop_columns(train_df, test_df, cols_to_drop)
 
 # Проверка
 print("\nИтоговый train_df:")
