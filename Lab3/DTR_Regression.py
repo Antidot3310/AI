@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor, export_text
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 train_df = pd.read_csv("train_processed.csv")
@@ -20,3 +20,4 @@ y_pred_reg = dt_reg.predict(X_test_reg)
 print("Decision Tree Regressor:")
 print(f"MSE: {mean_squared_error(y_test_reg, y_pred_reg):.3f}")
 print(f"MAE: {mean_absolute_error(y_test_reg, y_pred_reg):.3f}")
+print(export_text(dt_reg, feature_names=X_test_reg.columns.tolist()))

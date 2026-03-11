@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, export_text
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import matplotlib.pyplot as plt
 
@@ -21,6 +21,7 @@ print("Decision Tree Classifier:")
 print("Accuracy:", accuracy_score(y_test_clf, y_pred_clf))
 print("Confusion Matrix:\n", confusion_matrix(y_test_clf, y_pred_clf))
 print("Classification Report:\n", classification_report(y_test_clf, y_pred_clf))
+print(export_text(dt_clf, feature_names=X_test_clf.columns.tolist()))
 
 from sklearn.metrics import roc_curve, auc
 
@@ -33,12 +34,10 @@ print(f"ROC-AUC: {roc_auc:.3f}")
 
 
 plt.figure()
-plt.plot(fpr, tpr, color="darkorange", lw=2, label=f"ROC curve (AUC = {roc_auc:.2f})")
-plt.plot([0, 1], [0, 1], color="navy", lw=2, linestyle="--", label="Random")
+plt.plot(fpr, tpr, color="orange", label=f"ROC curve (AUC = {roc_auc:.2f})")
+plt.plot([0, 1], [0, 1], color="navy")
 plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
+plt.ylim([0.0, 1.0])
 plt.xlabel("False Positive Rate")
 plt.ylabel("True Positive Rate")
-plt.title("Receiver Operating Characteristic")
-plt.legend(loc="lower right")
 plt.show()
