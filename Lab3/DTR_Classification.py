@@ -17,18 +17,16 @@ dt_clf.fit(X_train_clf, y_train_clf)
 
 y_pred_clf = dt_clf.predict(X_test_clf)
 
+print(export_text(dt_clf, feature_names=X_test_clf.columns.tolist()))
 print("Decision Tree Classifier:")
 print("Accuracy:", accuracy_score(y_test_clf, y_pred_clf))
 print("Confusion Matrix:\n", confusion_matrix(y_test_clf, y_pred_clf))
 print("Classification Report:\n", classification_report(y_test_clf, y_pred_clf))
-print(export_text(dt_clf, feature_names=X_test_clf.columns.tolist()))
 
 from sklearn.metrics import roc_curve, auc
 
 y_proba = dt_clf.predict_proba(X_test_clf)[:, 1]
-
 fpr, tpr, thresholds = roc_curve(y_test_clf, y_proba)
-
 roc_auc = auc(fpr, tpr)
 print(f"ROC-AUC: {roc_auc:.3f}")
 

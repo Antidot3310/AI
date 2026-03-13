@@ -1,0 +1,49 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    classification_report,
+    roc_curve,
+    auc,
+)
+from sklearn.ensemble import RandomForestClassifier
+
+train_df = pd.read_csv("train_processed.csv")
+test_df = pd.read_csv("test_processed.csv")
+
+X_train = train_df.drop("Survived", axis=1)
+y_train = train_df["Survived"]
+
+X_test = test_df.drop("Survived", axis=1)
+y_test = test_df["Survived"]
+
+print(f"Train: {X_train.shape}, Test: {X_test.shape}")
+
+from sklearn.ensemble import RandomForestClassifier
+
+rf = RandomForestClassifier(n_estimators=100, oob_score=True, random_state=42)
+rf.fit(X_train, y_train)
+
+print("OOB Accuracy:", rf.oob_score_)
+print("OOB Error:", 1 - rf.oob_score_)
+
+y_pred_rf = rf.predict(X_test)
+y_proba_rf = rf.predict_proba(X_test)[:, 1]
+
+print("\nRandom Forest Test Performance:")
+print("Accuracy:", accuracy_score(y_test, y_pred_rf))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_rf))
+print("Classification Report:\n", classification_report(y_test, y_pred_rf))
+
+fpr_rf, tpr_rf, _ = roc_curve(y_test, y_proba_rf)
+roc_auc_rf = auc(fpr_rf, tpr_rf)
+
+plt.figure()
+plt.plot(fpr_rf, tpr_rf, label=f"Random Forest (AUC = {roc_auc_rf:.2f})")
+plt.plot([0, 1], [0, 1], "k--", label="Random")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve - Random Forest")
+plt.legend()
+plt.show()

@@ -1,0 +1,48 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    classification_report,
+    roc_curve,
+    auc,
+)
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+
+
+train_df = pd.read_csv("train_processed.csv")
+test_df = pd.read_csv("test_processed.csv")
+
+X_train = train_df.drop("Survived", axis=1)
+y_train = train_df["Survived"]
+
+X_test = test_df.drop("Survived", axis=1)
+y_test = test_df["Survived"]
+
+print(f"Train: {X_train.shape}, Test: {X_test.shape}")
+
+base_estimator = DecisionTreeClassifier(max_depth=1, random_state=42)
+
+ada = AdaBoostClassifier(estimator=base_estimator, n_estimators=30, random_state=42)
+ada.fit(X_train, y_train)
+
+y_pred_ada = ada.predict(X_test)
+y_proba_ada = ada.predict_proba(X_test)[:, 1]
+
+print("\nAdaBoost Test Performance:")
+print("Accuracy:", accuracy_score(y_test, y_pred_ada))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_ada))
+print("Classification Report:\n", classification_report(y_test, y_pred_ada))
+
+fpr_ada, tpr_ada, _ = roc_curve(y_test, y_proba_ada)
+roc_auc_ada = auc(fpr_ada, tpr_ada)
+
+plt.figure()
+plt.plot(fpr_ada, tpr_ada, label=f"AdaBoost (AUC = {roc_auc_ada:.2f})")
+plt.plot([0, 1], [0, 1], "k--")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve - AdaBoost")
+plt.legend()
+plt.show()

@@ -1,0 +1,45 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    classification_report,
+    roc_curve,
+    auc,
+)
+from sklearn.ensemble import GradientBoostingClassifier
+
+
+train_df = pd.read_csv("train_processed.csv")
+test_df = pd.read_csv("test_processed.csv")
+
+X_train = train_df.drop("Survived", axis=1)
+y_train = train_df["Survived"]
+
+X_test = test_df.drop("Survived", axis=1)
+y_test = test_df["Survived"]
+
+gb = GradientBoostingClassifier(
+    n_estimators=30, learning_rate=0.1, max_depth=3, random_state=42
+)
+gb.fit(X_train, y_train)
+
+y_pred_gb = gb.predict(X_test)
+y_proba_gb = gb.predict_proba(X_test)[:, 1]
+
+print("\nGradient Boosting Test Performance:")
+print("Accuracy:", accuracy_score(y_test, y_pred_gb))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_gb))
+print("Classification Report:\n", classification_report(y_test, y_pred_gb))
+
+fpr_gb, tpr_gb, _ = roc_curve(y_test, y_proba_gb)
+roc_auc_gb = auc(fpr_gb, tpr_gb)
+
+plt.figure()
+plt.plot(fpr_gb, tpr_gb, label=f"Gradient Boosting (AUC = {roc_auc_gb:.2f})")
+plt.plot([0, 1], [0, 1], "k--")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve - Gradient Boosting")
+plt.legend()
+plt.show()
