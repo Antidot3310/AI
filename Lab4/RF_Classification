@@ -20,9 +20,7 @@ y_test = test_df["Survived"]
 
 print(f"Train: {X_train.shape}, Test: {X_test.shape}")
 
-from sklearn.ensemble import RandomForestClassifier
-
-rf = RandomForestClassifier(n_estimators=100, oob_score=True, random_state=42)
+rf = RandomForestClassifier(n_estimators=30, oob_score=True, random_state=42)
 rf.fit(X_train, y_train)
 
 print("OOB Accuracy:", rf.oob_score_)
