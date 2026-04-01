@@ -12,7 +12,7 @@ X_test_reg = test_df.drop("Age", axis=1)
 y_test_reg = test_df["Age"]
 
 
-dt_reg = DecisionTreeRegressor(ccp_alpha=0.0005, max_depth=5, random_state=42)
+dt_reg = DecisionTreeRegressor(ccp_alpha=0.0003, max_depth=5, random_state=42)
 dt_reg.fit(X_train_reg, y_train_reg)
 
 y_pred_reg = dt_reg.predict(X_test_reg)
